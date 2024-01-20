@@ -1,5 +1,5 @@
 # Final Year Project
 ### To-do
 - [ ]  Create users app
-  - [ ] Register page
+  - [x] Register page
   - [ ] Login page
