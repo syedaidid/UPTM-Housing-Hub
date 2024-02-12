@@ -1,16 +1,16 @@
 # Final Year Project
 ### To-do
-- [ ]  Create users app
+- [x]  Create users app
   - [x] Register page
-  - [ ] Login page
+  - [x] Login page
 
 - [ ] Create Post app
   - [ ] Model
 
 
-- [ ] Create Profile app
-  - [ ] Model
-  - [ ] Configure media
+- [x] Create Profile app
+  - [x] Model
+  - [x] Configure media
 
 - [ ] Front-end
   - [ ] Slideshow images
