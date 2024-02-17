@@ -1,17 +1,12 @@
-<!-- create.html -->
 {% extends 'static_pages/base.html' %}
 {% load crispy_forms_tags %}
 {% block content %}
 <div class="content-section">
-    <form method="POST" enctype="multipart/form-data">
+    <form method="POST">
         {% csrf_token %}
         <fieldset class="form-group mb-0">
-            <legend class="border-bottom mb-4">Post</legend>
+            <legend class="border-bottom mb-4">Housing Post</legend>
             {{ form|crispy }}
-        </fieldset>
-        <fieldset class="form-group mb-0">
-            <legend class="border-bottom mb-4">Images</legend>
-            {{ imageform|crispy }}
         </fieldset>
         <div class="form-group">
             <button class="btn btn-outline-info" type="submit">

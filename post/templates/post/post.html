@@ -33,8 +33,10 @@
 
   {% for post in posts %}
   {% if post.images.all %}
+  <div>
     <article class="media content-section mb-0">
   {% else %}
+  <div>
     <article class="media content-section">
   {% endif %}
       <img class="rounded-circle article-img" src="{{ post.user.profile.image.url }}" />
@@ -68,7 +70,7 @@
     </article>
 
     {% if post.images.all %}
-      <div id="carousel-{{ post.id }}" class="carousel mb-4" data-ride="carousel">
+      <div id="carousel-{{ post.id }}" class="carousel mb-4" data-interval="false">
         <!-- Indicators -->
         <ul class="carousel-indicators">
           {% for image in post.images.all %}
@@ -91,5 +93,6 @@
       </div>
     {% endif %}
     
+  </div>
   {% endfor %}
 {% endblock %}

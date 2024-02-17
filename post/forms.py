@@ -1,5 +1,5 @@
 from django import forms
-from .models import HousingPost
+from .models import HousingPost, Image
 
 class CreateNewPostForm(forms.ModelForm):
     GENDER_CHOICES = [
@@ -19,3 +19,26 @@ class CreateNewPostForm(forms.ModelForm):
     class Meta:
         model = HousingPost 
         fields = ['title', 'description', 'gender', 'number_of_people', 'deposit', 'monthly_payment', 'furnished', 'facilities']
+
+class MultipleFileInput(forms.ClearableFileInput):
+    allow_multiple_selected = True
+
+class MultipleFileField(forms.FileField):
+    def __init__(self, *args, **kwargs):
+        kwargs.setdefault("widget", MultipleFileInput())
+        super().__init__(*args, **kwargs)
+
+    def clean(self, data, initial=None):
+        single_file_clean = super().clean
+        if isinstance(data, (list, tuple)):
+            result = [single_file_clean(d, initial) for d in data]
+        else:
+            result = single_file_clean(data, initial)
+        return result
+
+class ImageForm(forms.ModelForm):
+    image = MultipleFileField(label='image', required=False)
+
+    class Meta:
+        model = Image
+        fields = ['image', ]

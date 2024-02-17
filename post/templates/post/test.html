@@ -1,0 +1,20 @@
+{% extends 'static_pages/base.html' %}
+{% load crispy_forms_tags %}
+{% block content %}
+  <div class="content-section">
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      {{ form|crispy }}
+
+      <fieldset class="formset">
+        <legend>Upload Images</legend>
+        {{ image_formset.management_form }}
+        {% for form in image_formset %}
+          <div class="formset-row">{{ form.as_p }}</div>
+        {% endfor %}
+      </fieldset>
+
+      <button type="submit">Submit</button>
+    </form>
+  </div>
+{% endblock %}

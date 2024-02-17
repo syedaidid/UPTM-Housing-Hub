@@ -1,12 +1,32 @@
 from django.shortcuts import render, redirect
-from .models import HousingPost
+from .models import HousingPost, Image
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
-from .forms import CreateNewPostForm 
+from .forms import CreateNewPostForm, ImageForm
 from django.contrib import messages
 from django.views.generic import CreateView, UpdateView, DeleteView
 from django.views import View
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+
+def create_post(request):
+    if request.method == "POST":
+        form = CreateNewPostForm(request.POST)
+        imageform = ImageForm(request.POST, request.FILES)
+        if form.is_valid() and imageform.is_valid():
+            post = form.save(commit=False)
+            post.user = request.user
+            post.save()
+            for image in request.FILES.getlist("image"):
+                Image.objects.create(housing_post=post, image=image)
+            return render(request, "post/post.html")
+    else:
+        form = CreateNewPostForm()
+        imageform = ImageForm()
+    context = {
+        'form': form,
+        'imageform': imageform,
+    }
+    return render(request, "post/create.html", context)
 
 # Create your views here.
 
@@ -77,33 +97,33 @@ class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
         return False
 
 
-@login_required
-def create_post(request):
-    if request.method == 'POST':
-        form = CreateNewPostForm(request.POST)
+# @login_required
+# def create_post(request):
+#     if request.method == 'POST':
+#         form = CreateNewPostForm(request.POST)
 
-        if form.is_valid():
-            # Create a post instance but don't save it to the database yet
-            post = form.save(commit=False)
-            # Set the user_id field to the ID of the current user
-            post.user_id = request.user.id
-            # Save the post to the database
-            post.save()
-            messages.success(request, 'Your post has been created successfully.')
-            return redirect('post-home')
+#         if form.is_valid():
+#             # Create a post instance but don't save it to the database yet
+#             post = form.save(commit=False)
+#             # Set the user_id field to the ID of the current user
+#             post.user_id = request.user.id
+#             # Save the post to the database
+#             post.save()
+#             messages.success(request, 'Your post has been created successfully.')
+#             return redirect('post-home')
         
-            # post = form.save(commit=False)
-            # post.author = request.user
-            # post.save()
-            # messages.success(request, f'Your account has been updated')
-            # return redirect('profile')
+#             # post = form.save(commit=False)
+#             # post.author = request.user
+#             # post.save()
+#             # messages.success(request, f'Your account has been updated')
+#             # return redirect('profile')
 
 
-    else:
-        form = CreateNewPostForm()
+#     else:
+#         form = CreateNewPostForm()
 
-    context = {
-        'form': form,
-    }
+#     context = {
+#         'form': form,
+#     }
 
-    return render(request, 'post/create.html', context)
+#     return render(request, 'post/create.html', context)
