@@ -26,3 +26,10 @@ class HousingPost(models.Model):
     def get_absolute_url(self):
         return reverse("post-detail", kwargs={"pk": self.pk})
     
+
+class Image(models.Model):
+    image = models.ImageField(upload_to='image_post')
+    housing_post = models.ForeignKey(HousingPost, on_delete=models.CASCADE, related_name='images', default=None)
+
+    def __str__(self):
+        return self.image.url
