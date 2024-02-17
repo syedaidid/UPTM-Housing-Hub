@@ -1,11 +1,12 @@
+# Kau Tengok ii apa sial
 # Final Year Project
 ### To-do
 - [x]  Create users app
   - [x] Register page
   - [x] Login page
 
-- [ ] Create Post app
-  - [ ] Model
+- [x] Create Post app
+  - [x] Model
 
 
 - [x] Create Profile app
