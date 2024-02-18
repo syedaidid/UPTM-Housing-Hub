@@ -2,38 +2,72 @@
 {% load static %}
 {% load crispy_forms_tags %}
 {% block content %}
-    <article class="media content-section">
-      <img class="rounded-circle article-img" src="{{ object.user.profile.image.url }}" />
-      <div class="media-body">
-        <div class="article-metadata">
-          <a class="mr-2" href="#">{{ object.user }}</a>
-          <small class="text-muted">{{ object.date_posted }}</small>
-        </div>
-        <h2 class="article-title">{{ object.title }}</h2>
-        <p class="article-content">{{ object.description }}</p>
-        <hr />
-        <h3>Furnished Items:</h3>
-        <ul>
-          {% for item in object.furnished %}
-            <li>{{ item }}</li>
-          {% endfor %}
-        </ul>
-        <h3>Facilities:</h3>
-        <ul>
-          {% for facility in object.facilities %}
-            <li>{{ facility }}</li>
-          {% endfor %}
-        </ul>
+<article class="media content-section mb-0">
+  <img class="rounded-circle article-img"
+    src="{{ object.user.profile.image.url }}" />
+  <div class="media-body">
+    <div class="article-metadata">
+      <a class="mr-2" href="#">{{ object.user }}</a>
+      <small class="text-muted">{{ object.date_posted }}</small>
+    </div>
+    <h2 class="article-title">{{ object.title }}</h2>
+    <p class="article-content">{{ object.description }}</p>
+    <hr />
+    <h3>Furnished Items:</h3>
+    <ul>
+      {% for item in object.furnished %}
+      <li>{{ item }}</li>
+      {% endfor %}
+    </ul>
+    <h3>Facilities:</h3>
+    <ul>
+      {% for facility in object.facilities %}
+      <li>{{ facility }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+  <div>
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="15"
+      fill="currentColor" class="bi bi-people-fill" viewBox="0 0 16 16">
+      <path
+        d="M7 14s-1 0-1-1 1-4 5-4 5 3 5 4-1 1-1 1zm4-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6m-5.784 6A2.24 2.24 0 0 1 5 13c0-1.355.68-2.75 1.936-3.72A6.3 6.3 0 0 0 5 9c-4 0-5 3-5 4s1 1 1 1zM4.5 8a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5" />
+    </svg>
+    <small>{{ object.number_of_people }}</small>
+  </div>
+</article>
+{% if object.images.all %}
+<div id="carousel-{{ object.id }}" class="carousel mb-4" data-interval="false">
+  <!-- Indicators -->
+  <ul class="carousel-indicators">
+    {% for image in object.images.all %}
+    <li data-target="#carousel-{{ object.id }}"
+      data-slide-to="{{ forloop.counter0 }}" {% if forloop.first %}class="active" {% endif %}></li>
+    {% endfor %}
+  </ul>
+
+  <!-- The slideshow -->
+  <div class="carousel-inner">
+    {% for image in object.images.all %}
+    <div class="carousel-item {% if forloop.first %}active{% endif %}">
+      <div class="d-block w-100 aspect-ratio-container">
+        <a href="{{ image.image.url }}" target="_blank">
+          <img src="{{ image.image.url }}" alt="Slide {{ forloop.counter }}"
+            class="img-fluid aspect-ratio-item" />
+        </a>
       </div>
-      <div>
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="15" fill="currentColor" class="bi bi-people-fill" viewBox="0 0 16 16">
-          <path d="M7 14s-1 0-1-1 1-4 5-4 5 3 5 4-1 1-1 1zm4-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6m-5.784 6A2.24 2.24 0 0 1 5 13c0-1.355.68-2.75 1.936-3.72A6.3 6.3 0 0 0 5 9c-4 0-5 3-5 4s1 1 1 1zM4.5 8a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5" />
-        </svg>
-        <small>{{ object.number_of_people }}</small>
-      </div>
-    </article>
-        {% if object.user == user %}
-          <a class="btn btn-info" href="{% url 'post-update' object.id %}">Update</a>
-          <a class="btn btn-danger" href="{% url 'post-delete' object.id %}">delete</a>
-        {% endif %}
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- Left and right controls -->
+  <a class="carousel-control-prev" href="#carousel-{{ object.id }}"
+    data-slide="prev"><span class="carousel-control-prev-icon"></span></a>
+  <a class="carousel-control-next" href="#carousel-{{ object.id }}"
+    data-slide="next"><span class="carousel-control-next-icon"></span></a>
+</div>
+{% endif %}
+{% if object.user == user %}
+<a class="btn btn-info" href="{% url 'post-update' object.id %}">Update</a>
+<a class="btn btn-danger" href="{% url 'post-delete' object.id %}">delete</a>
+{% endif %}
 {% endblock %}

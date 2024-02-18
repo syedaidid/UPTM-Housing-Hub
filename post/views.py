@@ -1,32 +1,77 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from .models import HousingPost, Image
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
-from .forms import CreateNewPostForm, ImageForm
+from .forms import CreateNewPostForm, ImageForm, PostUpdateForm
 from django.contrib import messages
 from django.views.generic import CreateView, UpdateView, DeleteView
 from django.views import View
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.forms import modelformset_factory
 
 def create_post(request):
+    form = CreateNewPostForm()
+    
     if request.method == "POST":
         form = CreateNewPostForm(request.POST)
-        imageform = ImageForm(request.POST, request.FILES)
-        if form.is_valid() and imageform.is_valid():
+        images = request.FILES.getlist('image')
+
+        if form.is_valid():
             post = form.save(commit=False)
             post.user = request.user
             post.save()
-            for image in request.FILES.getlist("image"):
-                Image.objects.create(housing_post=post, image=image)
-            return render(request, "post/post.html")
-    else:
-        form = CreateNewPostForm()
-        imageform = ImageForm()
-    context = {
-        'form': form,
-        'imageform': imageform,
-    }
+            for i in images:
+                Image.objects.create(housing_post=post, image=i)
+            return redirect('post-home')
+    
+    context = {'form': form}
     return render(request, "post/create.html", context)
+
+def update_post(request, pk):
+    post = get_object_or_404(HousingPost, pk=pk)
+    if request.method == 'POST':
+        form = CreateNewPostForm(request.POST, instance=post)
+        images = request.FILES.getlist('image')
+        if form.is_valid():
+            form.save()
+            for i in images:
+                Image.objects.create(housing_post=post, image=i)
+            return redirect('post-detail', pk=pk)
+    else:
+        form = CreateNewPostForm(instance=post)
+    
+    context = {'form': form, 'post': post}
+    return render(request, "post/update.html", context)
+
+def delete_images(request):
+    if request.method == 'POST':
+        selected_image_ids = request.POST.getlist('selected_images')
+        for image_id in selected_image_ids:
+            image = Image.objects.get(id=image_id)
+            image.delete()
+    return redirect('post-home')  # Redirect to the desired view after deletion
+
+# @login_required
+# def create_post(request):
+#     if request.method == "POST":
+#         form = CreateNewPostForm(request.POST)
+#         imageform = ImageForm(request.POST, request.FILES)
+#         if form.is_valid() and imageform.is_valid():
+#             post = form.save(commit=False)
+#             post.user = request.user
+#             post.save()
+#             for image in request.FILES.getlist("image"):
+#                 Image.objects.create(housing_post=post, image=image)
+#             messages.success(request, 'Your post has been created successfully.')
+#             return redirect('post-home')
+#     else:
+#         form = CreateNewPostForm()
+#         imageform = ImageForm()
+#     context = {
+#         'form': form,
+#         'imageform': imageform,
+#     }
+#     return render(request, "post/create.html", context)
 
 # Create your views here.
 

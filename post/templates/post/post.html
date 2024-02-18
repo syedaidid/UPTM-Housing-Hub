@@ -2,97 +2,81 @@
 {% load static %}
 {% load crispy_forms_tags %}
 {% block content %}
-  {% comment %} {% for post in posts %}
-    <div class="container-post">
-      <div class="item1">
-        <img class="rounded-circle article-img" src="{{ post.user.profile.image.url }}" />
-      </div>
-      <div class="item2">{{ post.user.username }}</div>
-      <div class="item3">{{ post.date_posted }}</div>
-      <div class="item4">{{ post.number_of_people }}</div>
-      <div class="item5">
-        <p class="article-content">{{ post.description }}</p>
-        <hr />
-        <h3>Furnished Items:</h3>
-        <ul>
-          {% for item in post.furnished %}
+{% for post in posts %}
+{% if post.images.all %}
+<div>
+  <article class="media content-section mb-0">
+    {% else %}
+    <div>
+      <article class="media content-section">
+        {% endif %}
+        <img class="rounded-circle article-img"
+          src="{{ post.user.profile.image.url }}" />
+        <div class="media-body">
+          <div class="article-metadata">
+            <a class="mr-2" href="#">{{ post.user }}</a>
+            <small class="text-muted">{{ post.date_posted }}</small>
+          </div>
+          <h2><a class="article-title" href="{% url 'post-detail' post.id %}">{{ post.title }}</a></h2>
+          <p class="article-content">{{ post.description }}</p>
+          <hr />
+          <h3>Furnished Items:</h3>
+          <ul>
+            {% for item in post.furnished %}
             <li>{{ item }}</li>
-          {% endfor %}
-        </ul>
-        <h3>Facilities:</h3>
-        <ul>
-          {% for facility in post.facilities %}
+            {% endfor %}
+          </ul>
+          <h3>Facilities:</h3>
+          <ul>
+            {% for facility in post.facilities %}
             <li>{{ facility }}</li>
-          {% endfor %}
-        </ul>
-      </div>
-      <div class="item6">Image</div>
-      <div class="item7">Like</div>
-    </div>
-  {% endfor %} {% endcomment %}
-
-  {% for post in posts %}
-  {% if post.images.all %}
-  <div>
-    <article class="media content-section mb-0">
-  {% else %}
-  <div>
-    <article class="media content-section">
-  {% endif %}
-      <img class="rounded-circle article-img" src="{{ post.user.profile.image.url }}" />
-      <div class="media-body">
-        <div class="article-metadata">
-          <a class="mr-2" href="#">{{ post.user }}</a>
-          <small class="text-muted">{{ post.date_posted }}</small>
+            {% endfor %}
+          </ul>
         </div>
-        <h2><a class="article-title" href="{% url 'post-detail' post.id %}">{{ post.title }}</a></h2>
-        <p class="article-content">{{ post.description }}</p>
-        <hr />
-        <h3>Furnished Items:</h3>
-        <ul>
-          {% for item in post.furnished %}
-            <li>{{ item }}</li>
-          {% endfor %}
-        </ul>
-        <h3>Facilities:</h3>
-        <ul>
-          {% for facility in post.facilities %}
-            <li>{{ facility }}</li>
-          {% endfor %}
-        </ul>
-      </div>
-      <div>
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="15" fill="currentColor" class="bi bi-people-fill" viewBox="0 0 16 16">
-          <path d="M7 14s-1 0-1-1 1-4 5-4 5 3 5 4-1 1-1 1zm4-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6m-5.784 6A2.24 2.24 0 0 1 5 13c0-1.355.68-2.75 1.936-3.72A6.3 6.3 0 0 0 5 9c-4 0-5 3-5 4s1 1 1 1zM4.5 8a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5" />
-        </svg>
-        <small>{{ post.number_of_people }}</small>
-      </div>
-    </article>
+        <div>
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="15"
+            fill="currentColor" class="bi bi-people-fill" viewBox="0 0 16 16">
+            <path
+              d="M7 14s-1 0-1-1 1-4 5-4 5 3 5 4-1 1-1 1zm4-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6m-5.784 6A2.24 2.24 0 0 1 5 13c0-1.355.68-2.75 1.936-3.72A6.3 6.3 0 0 0 5 9c-4 0-5 3-5 4s1 1 1 1zM4.5 8a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5" />
+          </svg>
+          <small>{{ post.number_of_people }}</small>
+        </div>
+      </article>
 
-    {% if post.images.all %}
-      <div id="carousel-{{ post.id }}" class="carousel mb-4" data-interval="false">
+      {% if post.images.all %}
+      <div id="carousel-{{ post.id }}" class="carousel mb-4"
+        data-interval="false">
         <!-- Indicators -->
         <ul class="carousel-indicators">
           {% for image in post.images.all %}
-            <li data-target="#carousel-{{ post.id }}" data-slide-to="{{ forloop.counter0 }}" {% if forloop.first %}class="active"{% endif %}></li>
+          <li data-target="#carousel-{{ post.id }}"
+            data-slide-to="{{ forloop.counter0 }}" {% if forloop.first %}class="active" {% endif %}></li>
           {% endfor %}
         </ul>
 
         <!-- The slideshow -->
         <div class="carousel-inner">
           {% for image in post.images.all %}
-            <div class="carousel-item {% if forloop.first %}active{% endif %}">
-              <img src="{{ image.image.url }}" alt="Slide {{ forloop.counter }}" class="img-fluid" />
+          <div class="carousel-item {% if forloop.first %}active{% endif %}">
+            <div class="d-block w-100 aspect-ratio-container">
+              <a href="{{ image.image.url }}" target="_blank">
+                <img src="{{ image.image.url }}"
+                  alt="Slide {{ forloop.counter }}"
+                  class="img-fluid aspect-ratio-item" />
+              </a>
             </div>
+          </div>
           {% endfor %}
         </div>
 
         <!-- Left and right controls -->
-        <a class="carousel-control-prev" href="#carousel-{{ post.id }}" data-slide="prev"><span class="carousel-control-prev-icon"></span></a>
-        <a class="carousel-control-next" href="#carousel-{{ post.id }}" data-slide="next"><span class="carousel-control-next-icon"></span></a>
+        <a class="carousel-control-prev" href="#carousel-{{ post.id }}"
+          data-slide="prev"><span class="carousel-control-prev-icon"></span></a>
+        <a class="carousel-control-next" href="#carousel-{{ post.id }}"
+          data-slide="next"><span class="carousel-control-next-icon"></span></a>
       </div>
-    {% endif %}
-    
-  </div>
-  {% endfor %}
-{% endblock %}
+      {% endif %}
+
+    </div>
+    {% endfor %}
+    {% endblock %}
