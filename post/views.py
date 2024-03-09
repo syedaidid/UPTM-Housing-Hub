@@ -96,17 +96,40 @@ class PostListView(View):
             post.facilities = post.facilities.split(',') if post.facilities else []
         return render(request, "post/post.html", {'posts': posts})
 
+import folium
+from geocoder import osm
+
 class PostDetailView(View):
     def get(self, request, pk):
         # Retrieve the HousingPost object with the given primary key (pk)
         post = HousingPost.objects.get(pk=pk)
+
         # Split the furnished and facilities fields into lists
         post.furnished = post.furnished.split(',') if post.furnished else []
         post.facilities = post.facilities.split(',') if post.facilities else []
-        # Pass the modified post object to the template
-        context = {'object': post}
-        return render(request, 'post/detail.html', context) 
 
+        # Use geocoder to get the coordinates of a location (in this case, UK)
+        location = osm(post.address)
+        lat = location.lat
+        lng = location.lng
+
+        # Check if both latitude and longitude are valid
+        if lat is not None and lng is not None:
+            # Create a Folium map centered at coordinates [lat, lng] with zoom level 20
+            m = folium.Map(location=[lat, lng], zoom_start=20)
+
+            # Add a marker to the map
+            folium.Marker([lat, lng], tooltip='', popup=post.address).add_to(m)
+
+            # Pass the map to the template
+            context = {
+                'object': post,
+                'm': m._repr_html_(),  # Convert Folium map to HTML
+            }
+            return render(request, 'post/detail.html', context)
+        else:
+            # If location cannot be found, return a response without rendering the map
+            return render(request, 'post/detail.html', {'object': post})
         
 class PostCreateView(LoginRequiredMixin, CreateView):
     model = HousingPost

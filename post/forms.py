@@ -35,7 +35,7 @@ class CreateNewPostForm(forms.ModelForm):
 
     class Meta:
         model = HousingPost 
-        fields = ['title', 'description', 'gender', 'number_of_people', 'deposit', 'monthly_payment', 'furnished', 'facilities']
+        fields = ['title', 'description', 'gender', 'number_of_people', 'deposit', 'monthly_payment', 'furnished', 'facilities', 'address']
 
 
 class ImageForm(forms.ModelForm):

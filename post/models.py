@@ -17,6 +17,7 @@ class HousingPost(models.Model):
     monthly_payment = models.DecimalField(max_digits=10, decimal_places=2, default=0.0)  # Decimal field for monthly payment amount
     furnished = models.TextField(default=None)
     facilities = models.TextField(default=None)
+    address = models.CharField(max_length=200, null=True)
     date_posted = models.DateTimeField(default=timezone.now)
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='housing_posts')
 

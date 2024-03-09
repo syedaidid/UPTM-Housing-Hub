@@ -52,7 +52,7 @@
       <div class="d-block w-100 aspect-ratio-container">
         <a href="{{ image.image.url }}" target="_blank">
           <img src="{{ image.image.url }}" alt="Slide {{ forloop.counter }}"
-            class="img-fluid aspect-ratio-item" />
+            class="img-fluid aspect-ratio-item" style="object-fit: contain;"/>
         </a>
       </div>
     </div>
@@ -66,6 +66,11 @@
     data-slide="next"><span class="carousel-control-next-icon"></span></a>
 </div>
 {% endif %}
+
+{% if m %}
+<div class="container">{{ m|safe }}</div>
+{% endif %}
+
 {% if object.user == user %}
 <a class="btn btn-info" href="{% url 'post-update' object.id %}">Update</a>
 <a class="btn btn-danger" href="{% url 'post-delete' object.id %}">delete</a>
