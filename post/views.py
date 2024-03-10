@@ -7,8 +7,20 @@ from django.contrib import messages
 from django.views.generic import CreateView, UpdateView, DeleteView
 from django.views import View
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.forms import modelformset_factory
+from .filters import HousingPostFilter
 
+class UserDetailView(View):
+    def get(self, request, pk):
+        # Retrieve the user object with the given primary key (pk)
+        user = User.objects.get(pk=pk)
+        
+        # Pass the user object to the template
+        context = {
+            'user': user,
+        }
+        return render(request, 'users/detail.html', context)
+
+@login_required
 def create_post(request):
     form = CreateNewPostForm()
     
@@ -51,62 +63,41 @@ def delete_images(request):
             image.delete()
     return redirect('post-home')  # Redirect to the desired view after deletion
 
-# @login_required
-# def create_post(request):
-#     if request.method == "POST":
-#         form = CreateNewPostForm(request.POST)
-#         imageform = ImageForm(request.POST, request.FILES)
-#         if form.is_valid() and imageform.is_valid():
-#             post = form.save(commit=False)
-#             post.user = request.user
-#             post.save()
-#             for image in request.FILES.getlist("image"):
-#                 Image.objects.create(housing_post=post, image=image)
-#             messages.success(request, 'Your post has been created successfully.')
-#             return redirect('post-home')
-#     else:
-#         form = CreateNewPostForm()
-#         imageform = ImageForm()
-#     context = {
-#         'form': form,
-#         'imageform': imageform,
-#     }
-#     return render(request, "post/create.html", context)
-
-# Create your views here.
-
-# def home(request):
-#     # Retrieve all housing posts from the database
-#     posts = HousingPost.objects.all()
-
-#     for post in posts:
-#         post.furnished = post.furnished.split(',') if post.furnished else []
-#         post.facilities = post.facilities.split(',') if post.facilities else []
-
-#     context = {
-#         'posts': posts,  # Pass the posts queryset to the template
-#     }
-#     return render(request, "post/post.html", context)
-
 class PostListView(View):
     def get(self, request):
         posts = HousingPost.objects.order_by('-date_posted').all()
+        myFilter = HousingPostFilter(request.GET, queryset=posts)
+        posts = myFilter.qs
+
+        # Process each post to split furnished and facilities fields into lists
         for post in posts:
             post.furnished = post.furnished.split(',') if post.furnished else []
             post.facilities = post.facilities.split(',') if post.facilities else []
-        return render(request, "post/post.html", {'posts': posts})
+            post.accessibilities = post.accessibilities.split(',') if post.accessibilities else []
+
+        context = {
+            'posts': posts,
+            'myFilter': myFilter
+        }
+        return render(request, "post/post.html", context)
 
 import folium
 from geocoder import osm
+from django.urls import reverse
 
 class PostDetailView(View):
     def get(self, request, pk):
         # Retrieve the HousingPost object with the given primary key (pk)
         post = HousingPost.objects.get(pk=pk)
 
+        # Construct the URL to the detail page of the post
+        post_detail_url = reverse('post-detail', kwargs={'pk': post.pk})
+        popup_html = f'<a href="{post_detail_url}" target="_blank">{post.title}</a>'
+
         # Split the furnished and facilities fields into lists
         post.furnished = post.furnished.split(',') if post.furnished else []
         post.facilities = post.facilities.split(',') if post.facilities else []
+        post.accessibilities = post.accessibilities.split(',') if post.accessibilities else []
 
         # Use geocoder to get the coordinates of a location (in this case, UK)
         location = osm(post.address)
@@ -119,7 +110,7 @@ class PostDetailView(View):
             m = folium.Map(location=[lat, lng], zoom_start=20)
 
             # Add a marker to the map
-            folium.Marker([lat, lng], tooltip='', popup=post.address).add_to(m)
+            folium.Marker([lat, lng], tooltip='', popup=popup_html).add_to(m)
 
             # Pass the map to the template
             context = {
@@ -130,6 +121,49 @@ class PostDetailView(View):
         else:
             # If location cannot be found, return a response without rendering the map
             return render(request, 'post/detail.html', {'object': post})
+
+class PostListMapView(View):
+    def get(self, request):
+        posts = HousingPost.objects.all()
+        m = folium.Map(location=[3.127879824059893, 101.73731112157995], zoom_start=15)
+
+        # Dictionary to store the count of posts for each unique address
+        address_counts = {}
+
+        for post in posts:
+            # Retrieve location coordinates for the address
+            location = osm(post.address)
+
+            # Check if both latitude and longitude are valid
+            if location.ok:  # Check if location was found successfully
+                lat = location.latlng[0]
+                lng = location.latlng[1]
+
+                # Get the count of posts for this address
+                count = address_counts.get(post.address, 0)
+
+                # Add a small offset to latitude and longitude for each marker
+                lat_offset = 0.0002 * count
+                lng_offset = 0.0002 * count
+
+                # Construct the URL for the post detail page
+                post_url = reverse('post-detail', kwargs={'pk': post.pk})  # Adjust 'post-detail' to the name of your post detail URL
+
+                # Create a link to the post detail page in the popup
+                popup_html = f'<a href="{post_url}" target="_blank">{post.title}</a>'
+
+                # Add a marker to the map with the link in the popup
+                folium.Marker([lat + lat_offset, lng + lng_offset], tooltip='', popup=popup_html).add_to(m)
+
+                # Update the count of posts for this address
+                address_counts[post.address] = count + 1
+
+        context = {
+            'object': posts,
+            'm': m._repr_html_(),  # Convert Folium map to HTML
+        }
+
+        return render(request, 'post/map.html', context)
         
 class PostCreateView(LoginRequiredMixin, CreateView):
     model = HousingPost
@@ -163,35 +197,3 @@ class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
         if self.request.user == post.user:
             return True
         return False
-
-
-# @login_required
-# def create_post(request):
-#     if request.method == 'POST':
-#         form = CreateNewPostForm(request.POST)
-
-#         if form.is_valid():
-#             # Create a post instance but don't save it to the database yet
-#             post = form.save(commit=False)
-#             # Set the user_id field to the ID of the current user
-#             post.user_id = request.user.id
-#             # Save the post to the database
-#             post.save()
-#             messages.success(request, 'Your post has been created successfully.')
-#             return redirect('post-home')
-        
-#             # post = form.save(commit=False)
-#             # post.author = request.user
-#             # post.save()
-#             # messages.success(request, f'Your account has been updated')
-#             # return redirect('profile')
-
-
-#     else:
-#         form = CreateNewPostForm()
-
-#     context = {
-#         'form': form,
-#     }
-
-#     return render(request, 'post/create.html', context)

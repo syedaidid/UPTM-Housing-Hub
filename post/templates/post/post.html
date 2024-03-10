@@ -1,73 +1,84 @@
 {% extends 'static_pages/base.html' %}
 {% load static %}
 {% load crispy_forms_tags %}
+
+{% block column-size %}
+col-md-8
+{% endblock column-size %}
+
+{% block sidebar %}
+  <div class="col-md-4">
+    <div class="content-section position-fixed">
+      <h3>Filters</h3>
+      <form method="get">
+        {{ myFilter.form|crispy }}
+        <div class="text-center">
+          <button class="btn btn-primary center" type="submit">Search</button>
+          <a href="{% url 'post-home' %}" class="btn btn-secondary">Reset</a>
+        </div>
+      </form>
+    </div>
+  </div>
+{% endblock %}
+
 {% block content %}
-{% for post in posts %}
-{% if post.images.all %}
-<div>
-  <article class="media content-section mb-0">
-    {% else %}
-    <div>
+  {% for post in posts %}
       <article class="media content-section">
-        {% endif %}
-        <img class="rounded-circle article-img"
-          src="{{ post.user.profile.image.url }}" />
+        <img class="rounded-circle article-img" src="{{ post.user.profile.image.url }}" />
         <div class="media-body">
           <div class="article-metadata">
-            <a class="mr-2" href="#">{{ post.user }}</a>
+            <a class="mr-2" href="{% url 'user-detail' user.id %}">{{ post.user }}</a>
             <small class="text-muted">{{ post.date_posted }}</small>
           </div>
           <h2><a class="article-title" href="{% url 'post-detail' post.id %}">{{ post.title }}</a></h2>
-          <p class="article-content">{{ post.description }}</p>
+          <h3>RM {{ post.monthly_payment }}/Month</h3>
           <hr />
+          <p class="article-content">{{ post.description }}</p>
           <h4>Deposit</h4>
           <p>RM{{ post.deposit }}</p>
-          <h4>Monthly Payment</h4>
-          <p>RM{{ post.monthly_payment }}</p>
-          <h4>Furnished Items:</h4>
-          <ul>
-            {% for item in post.furnished %}
-            <li>{{ item }}</li>
-            {% endfor %}
-          </ul>
-          <h4>Facilities:</h4>
-          <ul>
-            {% for facility in post.facilities %}
-            <li>{{ facility }}</li>
-            {% endfor %}
-          </ul>
+          {% if post.furnished %}
+            <h4>Furnished Items:</h4>
+            <ul>
+              {% for item in post.furnished %}
+                <li>{{ item }}</li>
+              {% endfor %}
+            </ul>
+            <br />
+          {% endif %}
+          {% if post.facilities %}
+            <h4>Facilities:</h4>
+            <ul>
+              {% for facility in post.facilities %}
+                <li>{{ facility }}</li>
+              {% endfor %}
+            </ul>
+            <br />
+          {% endif %}
+          {% if post.accessibilities %}
+            <h4>Accessibility:</h4>
+            <ul>
+              {% for accessibility in post.accessibilities %}
+                <li>{{ accessibility }}</li>
+              {% endfor %}
+            </ul>
+            <br />
+          {% endif %}
         </div>
         <div>
-          {% if post.gender == "male" %}
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-gender-male" viewBox="0 0 16 16">
-              <path fill-rule="evenodd" d="M9.5 2a.5.5 0 0 1 0-1h5a.5.5 0 0 1 .5.5v5a.5.5 0 0 1-1 0V2.707L9.871 6.836a5 5 0 1 1-.707-.707L13.293 2zM6 6a4 4 0 1 0 0 8 4 4 0 0 0 0-8"/>
+          {% if post.gender == 'male' %}
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-gender-male" viewBox="0 0 16 16">
+              <path fill-rule="evenodd" d="M9.5 2a.5.5 0 0 1 0-1h5a.5.5 0 0 1 .5.5v5a.5.5 0 0 1-1 0V2.707L9.871 6.836a5 5 0 1 1-.707-.707L13.293 2zM6 6a4 4 0 1 0 0 8 4 4 0 0 0 0-8" />
             </svg>
-            {% else %}
+          {% else %}
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-gender-female" viewBox="0 0 16 16">
-              <path fill-rule="evenodd" d="M8 1a4 4 0 1 0 0 8 4 4 0 0 0 0-8M3 5a5 5 0 1 1 5.5 4.975V12h2a.5.5 0 0 1 0 1h-2v2.5a.5.5 0 0 1-1 0V13h-2a.5.5 0 0 1 0-1h2V9.975A5 5 0 0 1 3 5"/>
+              <path fill-rule="evenodd" d="M8 1a4 4 0 1 0 0 8 4 4 0 0 0 0-8M3 5a5 5 0 1 1 5.5 4.975V12h2a.5.5 0 0 1 0 1h-2v2.5a.5.5 0 0 1-1 0V13h-2a.5.5 0 0 1 0-1h2V9.975A5 5 0 0 1 3 5" />
             </svg>
-            {% endif %}
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="15"
-            fill="currentColor" class="bi bi-people-fill" viewBox="0 0 16 16">
-            <path
-              d="M7 14s-1 0-1-1 1-4 5-4 5 3 5 4-1 1-1 1zm4-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6m-5.784 6A2.24 2.24 0 0 1 5 13c0-1.355.68-2.75 1.936-3.72A6.3 6.3 0 0 0 5 9c-4 0-5 3-5 4s1 1 1 1zM4.5 8a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5" />
+          {% endif %}
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="15" fill="currentColor" class="bi bi-people-fill" viewBox="0 0 16 16">
+            <path d="M7 14s-1 0-1-1 1-4 5-4 5 3 5 4-1 1-1 1zm4-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6m-5.784 6A2.24 2.24 0 0 1 5 13c0-1.355.68-2.75 1.936-3.72A6.3 6.3 0 0 0 5 9c-4 0-5 3-5 4s1 1 1 1zM4.5 8a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5" />
           </svg>
           <small>{{ post.number_of_people }}</small>
         </div>
       </article>
-
-      {% if post.images.all %}
-      <div id="carousel-{{ post.id }}" class="carousel mb-4"
-        data-interval="false">
-        <!-- Indicators -->
-        <ul class="carousel-indicators">
-          {% for image in post.images.all %}
-          <li data-target="#carousel-{{ post.id }}"
-            data-slide-to="{{ forloop.counter0 }}" {% if forloop.first %}class="active" {% endif %}></li>
-          {% endfor %}
-        </ul>
-      {% endif %}
-
-    </div>
-    {% endfor %}
-    {% endblock %}
+  {% endfor %}
+{% endblock %}

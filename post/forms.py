@@ -18,25 +18,21 @@ class MultipleFileField(forms.FileField):
         return result
 
 class CreateNewPostForm(forms.ModelForm):
-    # GENDER_CHOICES = [
-    #     ('male', 'Male'),
-    #     ('female', 'Female'),
-    # ]
-
-    # title = forms.CharField(widget=forms.TextInput())
-    # description = forms.CharField(widget=forms.Textarea())
-    # gender = forms.ChoiceField(choices=GENDER_CHOICES)
-    # number_of_people = forms.IntegerField()
-    # deposit = forms.DecimalField()
-    # monthly_payment = forms.DecimalField()
-    # furnished = forms.CharField(widget=forms.Textarea())
-    # facilities = forms.CharField(widget=forms.Textarea())
     image = MultipleFileField(label='image', required=False)
 
     class Meta:
-        model = HousingPost 
-        fields = ['title', 'description', 'gender', 'number_of_people', 'deposit', 'monthly_payment', 'furnished', 'facilities', 'address']
+        model = HousingPost
+        fields = ['title', 'description', 'gender', 'number_of_people', 'deposit', 'monthly_payment', 'furnished', 'facilities', 'accessibilities', 'address']
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Set required attribute to False for the fields you want to make not required
+        self.fields['description'].required = False
+        self.fields['furnished'].required = False
+        self.fields['facilities'].required = False
+        self.fields['accessibilities'].required = False
+        self.fields['address'].required = False
 
 class ImageForm(forms.ModelForm):
     image = MultipleFileField(label='image', required=False)
