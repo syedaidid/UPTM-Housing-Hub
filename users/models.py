@@ -5,8 +5,8 @@ from PIL import Image
 # Create your models here.
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    name = models.CharField(max_length=100, default=None)  # Add name field
-    phone_number = models.CharField(max_length=15, default=None)  # Add phone_number field
+    name = models.CharField(max_length=100, default=None, null=True)  # Add name field
+    phone_number = models.CharField(max_length=15, default=None, null=True)  # Add phone_number field
     image = models.ImageField(default='default.jpg', upload_to='profile_pics')
 
     def __str__(self):

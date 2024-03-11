@@ -10,5 +10,7 @@ urlpatterns = [
     path("user/<int:pk>/", UserDetailView.as_view(), name="user-detail"),
     path("<int:pk>/delete/", PostDeleteView.as_view(), name="post-delete"),
     path("updates/delete-images", views.delete_images, name="post-delete-images"),
+    path('cached', views.cached, name='cached'),
+    path('cacheless', views.cacheless, name='cacheless'),
     # path("create/", views.create_post, name="post-create"),
 ]

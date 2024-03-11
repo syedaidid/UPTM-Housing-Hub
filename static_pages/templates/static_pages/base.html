@@ -22,16 +22,17 @@
             <div class="navbar-nav mr-auto">
               <a class="nav-item nav-link" href="{% url 'post-home' %}">Home</a>
               <a class="nav-item nav-link" href="">About</a>
-              <a class="nav-item nav-link" href="{% url "post-map" %}">Map</a>
+              <a class="nav-item nav-link" href="{% url 'post-map' %}">Map</a>
             </div>
             <!-- Navbar Right Side -->
             <div class="navbar-nav">
               {% if user.is_authenticated %}
                 <a class="nav-item nav-link" href="{% url 'post-create' %}">New Post</a>
                 <a class="nav-item nav-link" href="{% url 'profile' %}">Profile</a>
-                <form method="post" action="{% url 'logout' %}">
+                <a class="nav-item nav-link" href="{% url 'logout' %}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">Logout</a>
+
+                <form id="logout-form" method="post" action="{% url 'logout' %}" style="display: none;">
                   {% csrf_token %}
-                  <button type="submit">logout</button>
                 </form>
               {% else %}
                 <a class="nav-item nav-link" href="{% url 'login' %}">Login</a>
@@ -52,9 +53,11 @@
             {% endfor %}
           {% endif %}
           {% block content %}
+
           {% endblock %}
         </div>
         {% block sidebar %}
+
         {% endblock %}
       </div>
     </main>

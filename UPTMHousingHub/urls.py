@@ -20,6 +20,7 @@ from users import views as user_views
 from django.contrib.auth import views as auth_views
 from django.conf import settings
 from django.conf.urls.static import static
+import debug_toolbar
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -33,6 +34,7 @@ urlpatterns = [
     path("password-reset-complete/", auth_views.PasswordResetCompleteView.as_view(template_name='users/password_reset_complete.html'), name="password_reset_complete"),
     path("posts/", include("post.urls")),
     path("", include("static_pages.urls")),
+    path('__debug__/', include(debug_toolbar.urls)),
 ]
 
 if settings.DEBUG:
