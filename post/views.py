@@ -17,11 +17,15 @@ from django.core.cache import cache
 class UserDetailView(View):
     def get(self, request, pk):
         # Retrieve the user object with the given primary key (pk)
-        user = User.objects.get(pk=pk)
+        user = get_object_or_404(User, pk=pk)
         
-        # Pass the user object to the template
+        # Retrieve housing posts associated with the user
+        user_posts = HousingPost.objects.filter(user=user)
+        
+        # Pass the user and housing posts to the template
         context = {
             'user': user,
+            'posts': user_posts,
         }
         return render(request, 'users/detail.html', context)
 
@@ -62,11 +66,12 @@ def update_post(request, pk):
 
 def delete_images(request):
     if request.method == 'POST':
+        pk = request.POST.get('post_id')  # Retrieve the post_id from POST data
         selected_image_ids = request.POST.getlist('selected_images')
         for image_id in selected_image_ids:
             image = Image.objects.get(id=image_id)
             image.delete()
-    return redirect('post-home')  # Redirect to the desired view after deletion
+    return redirect('post-update', pk=pk)
 
 class PostListView(View):
     def get(self, request):
@@ -92,106 +97,81 @@ from django.urls import reverse
 
 class PostDetailView(View):
     def get(self, request, pk):
-        # Define the URL to be used as the cache key
-        cache_key = request.get_full_path()
-
-        # Try to get the cached response for the current URL
+        cache_key = f'post_detail_{pk}'
         cached_html = cache.get(cache_key)
 
-        # Check if the cached response exists
         if cached_html is not None:
-            # If the cached response exists, return it
             return cached_html
-        else:
-            # If the page is not in the cache, generate the page
 
-            # Retrieve the HousingPost object with the given primary key (pk)
-            post = HousingPost.objects.get(pk=pk)
+        post = HousingPost.objects.get(pk=pk)
+        html = self.render_post_detail(request, post)
+        cache.set(cache_key, html, 60 * 60)  # Cache for 1 hour
+        return html
 
-            # Construct the URL to the detail page of the post
-            post_detail_url = reverse('post-detail', kwargs={'pk': post.pk})
-            popup_html = f'<a href="{post_detail_url}" target="_blank">{post.title}</a>'
+    def render_post_detail(self, request, post):
+        post_detail_url = reverse('post-detail', kwargs={'pk': post.pk})
+        popup_html = f'<a href="{post_detail_url}" target="_blank">{post.title}</a>'
 
-            # Split the furnished and facilities fields into lists
-            post.furnished = post.furnished.split(',') if post.furnished else []
-            post.facilities = post.facilities.split(',') if post.facilities else []
-            post.accessibilities = post.accessibilities.split(',') if post.accessibilities else []
+        post.furnished = post.furnished.split(',') if post.furnished else []
+        post.facilities = post.facilities.split(',') if post.facilities else []
+        post.accessibilities = post.accessibilities.split(',') if post.accessibilities else []
 
-            # Use geocoder to get the coordinates of a location (in this case, UK)
+        if post.address:
             location = osm(post.address)
             lat = location.lat
             lng = location.lng
 
-            # Check if both latitude and longitude are valid
             if lat is not None and lng is not None:
-                # Create a Folium map centered at coordinates [lat, lng] with zoom level 20
                 m = folium.Map(location=[lat, lng], zoom_start=20)
-
-                # Add a marker to the map
                 folium.Marker([lat, lng], tooltip='', popup=popup_html).add_to(m)
-
-                # Pass the map to the template
+                map_html = m._repr_html_()
                 context = {
                     'object': post,
-                    'm': m._repr_html_(),  # Convert Folium map to HTML
+                    'm': map_html,
                 }
+                return render(request, 'post/detail.html', context)
 
-                # Cache the rendered response
-                rendered_html = render(request, 'post/detail.html', context)
-                cache.set(cache_key, rendered_html, 60 * 60)  # Cache for 1 hour
-                return rendered_html
-            else:
-                # If location cannot be found, return a response without rendering the map
-                return render(request, 'post/detail.html', {'object': post})
+        # If location cannot be found, render without map
+        return render(request, 'post/detail.html', {'object': post}) 
 
 class PostListMapView(View):
     def get(self, request):
-        # Define the URL to be used as the cache key
-        cache_key = request.get_full_path()
-
-        # Try to get the cached response for the current URL
+        cache_key = 'post_list_map'
         cached_html = cache.get(cache_key)
 
-        # Check if the cached response exists
         if cached_html is not None:
-            # If the cached response exists, return it
             return cached_html
-        else:
-            # If the page is not in the cache, generate the page
 
-            # Generate the map
-            posts = HousingPost.objects.all()
-            m = folium.Map(location=[3.127879824059893, 101.73731112157995], zoom_start=15)
+        posts = HousingPost.objects.all()
+        map_html = self.generate_map(posts)
+        context = {
+            'object': posts,
+            'm': map_html,
+        }
+        rendered_html = render(request, 'post/map.html', context)
+        cache.set(cache_key, rendered_html, 60 * 60)
+        return rendered_html
+    
+    def generate_map(self, posts):
+        m = folium.Map(location=[3.127879824059893, 101.73731112157995], zoom_start=15)
+        address_counts = {}
 
-            address_counts = {}
+        for post in posts:
+            location = osm(post.address)
+            if location.ok:
+                lat = location.latlng[0]
+                lng = location.latlng[1]
+                count = address_counts.get(post.address, 0)
+                lat_offset = 0.0002 * count
+                lng_offset = 0.0002 * count
 
-            for post in posts:
-                location = osm(post.address)
+                post_url = reverse('post-detail', kwargs={'pk': post.pk})
+                popup_html = f'<a href="{post_url}" target="_blank">{post.title}</a>'
 
-                if location.ok:
-                    lat = location.latlng[0]
-                    lng = location.latlng[1]
+                folium.Marker([lat + lat_offset, lng + lng_offset], tooltip='', popup=popup_html).add_to(m)
+                address_counts[post.address] = count + 1
 
-                    count = address_counts.get(post.address, 0)
-                    lat_offset = 0.0002 * count
-                    lng_offset = 0.0002 * count
-
-                    post_url = reverse('post-detail', kwargs={'pk': post.pk})
-                    popup_html = f'<a href="{post_url}" target="_blank">{post.title}</a>'
-
-                    folium.Marker([lat + lat_offset, lng + lng_offset], tooltip='', popup=popup_html).add_to(m)
-
-                    address_counts[post.address] = count + 1
-
-            context = {
-                'object': posts,
-                'm': m._repr_html_(),
-            }
-
-            # Cache the rendered response
-            rendered_html = render(request, 'post/map.html', context)
-            cache.set(cache_key, rendered_html, 60 * 15)  # Cache for 15 minutes
-            return rendered_html
+        return m._repr_html_()
         
 class PostCreateView(LoginRequiredMixin, CreateView):
     model = HousingPost

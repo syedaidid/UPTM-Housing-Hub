@@ -1,13 +1,32 @@
-<!-- user/detail.html -->
-<!DOCTYPE html>
-<html>
-<head>
-    <title>User Detail</title>
-</head>
-<body>
-    <h1>User Detail</h1>
-    <p>Username: {{ user.username }}</p>
-    <p>Email: {{ user.email }}</p>
-    <!-- Add more user details here as needed -->
-</body>
-</html>
+{% extends 'static_pages/base.html' %}
+{% load crispy_forms_tags %}
+{% block column-size %}col-md-8{% endblock column-size %}
+{% block sidebar %}
+  <div class="col-md-4">
+    <div class="content-section position-fixed">
+      <h3>Post</h3>
+      <ol>
+        {% for post in posts %}
+        <li><a class="h4" href="{% url 'post-detail' post.id %}">{{ post.title }}</a></li>
+        {% endfor %}
+      </ol>
+   </div>
+</div>
+{% endblock sidebar %}
+{% block content %}
+<div class="card mb-3 content-section">
+  <div class="row no-gutters">
+    <div class="col-md-4">
+      <img src="{{ user.profile.image.url }}" class="card-img" alt="...">
+    </div>
+    <div class="col-md-8">
+      <div class="card-body">
+        <h5 class="card-title mb-0">{{ user.profile.name }}</h5>
+        <small>@{{ user.username }}</small>
+        <p class="card-text mb-0 mt-1">Phone Number: {{ user.profile.phone_number }}</p>
+        <p class="card-text">Email: {{ user.email }}</p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

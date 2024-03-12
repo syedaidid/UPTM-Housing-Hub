@@ -26,6 +26,7 @@
             <input type="checkbox" class="custom-control-input" id="ck{{ image.id }}" name="selected_images" value="{{ image.id }}" />
             <label class="custom-control-label" for="ck{{ image.id }}"><img src="{{ image.image.url }}" alt="Image" class="img-fluid" /></label>
             </div>
+            <input type="hidden" name="post_id" id="post_id" value="{{ post.id }}">
         </div>
         {% endfor %}
     </div>

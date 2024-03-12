@@ -3,6 +3,7 @@ from .forms import UserRegisterForm, UserUpdateForm, ProfileUpdateForm
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from post.models import HousingPost
 
 # Create your views here.
 def register(request):
@@ -30,14 +31,17 @@ def profile(request):
             messages.success(request, f'Your account has been updated')
             return redirect('profile')
 
-
     else:
         u_form = UserUpdateForm(instance=request.user)
         p_form = ProfileUpdateForm(instance=request.user.profile)
 
+    # Retrieve posts made by the current user
+    user_posts = HousingPost.objects.filter(user=request.user)
+
     context = {
         'u_form': u_form,
-        'p_form': p_form
+        'p_form': p_form,
+        'posts': user_posts  # Add user's posts to the context
     }
 
     return render(request, 'users/profile.html', context)

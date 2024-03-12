@@ -1,6 +1,20 @@
 {% extends 'static_pages/base.html' %}
 {% load crispy_forms_tags %}
-{% block column-size %}col-md-12{% endblock column-size %}
+{% block column-size %}col-md-8{% endblock column-size %}
+{% block sidebar %}
+  <div class="col-md-4">
+    <div class="content-section position-fixed">
+      <h3>My Post</h3>
+      <ol>
+        {% for post in posts %}
+        <li><a class="h4" href="{% url 'post-detail' post.id %}">{{ post.title }}</a></li>
+        {% endfor %}
+      </ol>
+   </div>
+</div>
+    </div>
+  </div>
+{% endblock sidebar %}
 {% block content %}
   <div class="content-section">
     <div class="media">
