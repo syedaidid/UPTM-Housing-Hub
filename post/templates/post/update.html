@@ -15,6 +15,7 @@
       </div>
     </form>
     <br>
+    {% if post.images.all %}
     <hr>
     <h3>Images</h3>
     <form method="post" action="{% url 'post-delete-images' %}">
@@ -32,6 +33,7 @@
     </div>
     <button type="submit" class="btn btn-danger mt-4">Delete Selected Images</button>
     </form>
+{% endif %}
 
 
   </div>

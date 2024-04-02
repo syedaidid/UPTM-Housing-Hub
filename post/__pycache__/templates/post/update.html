@@ -1,0 +1,40 @@
+<!-- create.html -->
+{% extends 'static_pages/base.html' %}
+{% load crispy_forms_tags %}
+{% block column-size %}col-md-9{% endblock column-size %}
+{% block content %}
+  <div class="content-section">
+    <form method="POST" enctype="multipart/form-data">
+      {% csrf_token %}
+      <fieldset class="form-group mb-0">
+        <legend class="border-bottom mb-4">Post</legend>
+        {{ form|crispy }}
+      </fieldset>
+      <div class="form-group">
+        <button class="btn btn-outline-info" type="submit">Post</button>
+      </div>
+    </form>
+    <br>
+    {% if post.images.all %}
+    <hr>
+    <h3>Images</h3>
+    <form method="post" action="{% url 'post-delete-images' %}">
+    {% csrf_token %}
+    <div class="row">
+        {% for image in post.images.all %}
+        <div class="col-md-3">
+            <div class="custom-control custom-checkbox image-checkbox">
+            <input type="checkbox" class="custom-control-input" id="ck{{ image.id }}" name="selected_images" value="{{ image.id }}" />
+            <label class="custom-control-label" for="ck{{ image.id }}"><img src="{{ image.image.url }}" alt="Image" class="img-fluid" /></label>
+            </div>
+            <input type="hidden" name="post_id" id="post_id" value="{{ post.id }}">
+        </div>
+        {% endfor %}
+    </div>
+    <button type="submit" class="btn btn-danger mt-4">Delete Selected Images</button>
+    </form>
+{% endif %}
+
+
+  </div>
+{% endblock %}

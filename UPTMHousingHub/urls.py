@@ -23,18 +23,18 @@ from django.conf.urls.static import static
 import debug_toolbar
 
 urlpatterns = [
-    path("admin/", admin.site.urls),
-    path("register/", user_views.register, name="register"),
-    path("profile/", user_views.profile, name="profile"),
-    path("login/", auth_views.LoginView.as_view(template_name='users/login.html'), name="login"),
-    path("logout/", auth_views.LogoutView.as_view(template_name='users/logout.html'), name="logout"),
-    path("password-reset/", auth_views.PasswordResetView.as_view(template_name='users/password_reset.html'), name="password_reset"),
-    path("password-reset/done/", auth_views.PasswordResetDoneView.as_view(template_name='users/password_reset_done.html'), name="password_reset_done"),
-    path("password-reset-confirm/<uidb64>/<token>/", auth_views.PasswordResetConfirmView.as_view(template_name='users/password_reset_confirm.html'), name="password_reset_confirm"),
-    path("password-reset-complete/", auth_views.PasswordResetCompleteView.as_view(template_name='users/password_reset_complete.html'), name="password_reset_complete"),
-    path("posts/", include("post.urls")),
-    path("", include("static_pages.urls")),
-    path('__debug__/', include(debug_toolbar.urls)),
+    path("uptmhh/admin/", admin.site.urls),
+    path("uptmhh/register/", user_views.register, name="register"),
+    path("uptmhh/profile/", user_views.profile, name="profile"),
+    path("uptmhh/login/", auth_views.LoginView.as_view(template_name='users/login.html'), name="login"),
+    path("uptmhh/logout/", auth_views.LogoutView.as_view(template_name='users/logout.html'), name="logout"),
+    path("uptmhh/password-reset/", auth_views.PasswordResetView.as_view(template_name='users/password_reset.html'), name="password_reset"),
+    path("uptmhh/password-reset/done/", auth_views.PasswordResetDoneView.as_view(template_name='users/password_reset_done.html'), name="password_reset_done"),
+    path("uptmhh/password-reset-confirm/<uidb64>/<token>/", auth_views.PasswordResetConfirmView.as_view(template_name='users/password_reset_confirm.html'), name="password_reset_confirm"),
+    path("uptmhh/password-reset-complete/", auth_views.PasswordResetCompleteView.as_view(template_name='users/password_reset_complete.html'), name="password_reset_complete"),
+    path("uptmhh/posts/", include("post.urls")),
+    path("uptmhh/", include("static_pages.urls")),
+    path('uptmhh/__debug__/', include(debug_toolbar.urls)),
 ]
 
 if settings.DEBUG:

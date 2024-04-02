@@ -50,17 +50,22 @@ def create_post(request):
 
 def update_post(request, pk):
     post = get_object_or_404(HousingPost, pk=pk)
+
     if request.method == 'POST':
-        form = CreateNewPostForm(request.POST, instance=post)
+        form = CreateNewPostForm(request.POST, request.FILES, instance=post)
         images = request.FILES.getlist('image')
+
         if form.is_valid():
-            form.save()
-            for i in images:
-                Image.objects.create(housing_post=post, image=i)
+            post = form.save()
+
+            # Create new Image objects for the uploaded images
+            for img in images:
+                Image.objects.create(housing_post=post, image=img)
+
             return redirect('post-detail', pk=pk)
     else:
         form = CreateNewPostForm(instance=post)
-    
+
     context = {'form': form, 'post': post}
     return render(request, "post/update.html", context)
 
