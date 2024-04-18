@@ -1,9 +1,15 @@
+from django.core.cache import cache
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 from django.shortcuts import render, redirect
 from .forms import UserRegisterForm, UserUpdateForm, ProfileUpdateForm
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from post.models import HousingPost
+from .models import Profile
+
+from .signals import edit_profile
 
 # Create your views here.
 def register(request):
@@ -19,6 +25,10 @@ def register(request):
         form = UserRegisterForm()
     return render(request, "users/register.html", {'form': form})
 
+from django.core.cache import cache
+
+# ... (other imports)
+
 @login_required
 def profile(request):
     if request.method == 'POST':
@@ -28,9 +38,12 @@ def profile(request):
         if u_form.is_valid() and p_form.is_valid():
             u_form.save()
             p_form.save()
+
+            # Clear all cache
+            cache.clear()
+
             messages.success(request, f'Your account has been updated')
             return redirect('profile')
-
     else:
         u_form = UserUpdateForm(instance=request.user)
         p_form = ProfileUpdateForm(instance=request.user.profile)

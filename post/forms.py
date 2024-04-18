@@ -5,7 +5,7 @@ from .models import HousingPost, Image
 from django.core.exceptions import ValidationError
 
 def validate_image_file(value):
-    valid_extensions = ['.jpg', '.jpeg', '.png', '.gif']
+    valid_extensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp']
     if isinstance(value, list):
         for file in value:
             _, ext = os.path.splitext(file.name)
@@ -48,6 +48,7 @@ class CreateNewPostForm(forms.ModelForm):
         self.fields['facilities'].required = False
         self.fields['accessibilities'].required = False
         self.fields['address'].required = False
+        self.fields['furnished_type'].required = True
 
 class ImageForm(forms.ModelForm):
     image = MultipleFileField(label='image', required=False)

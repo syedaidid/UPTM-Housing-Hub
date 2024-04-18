@@ -13,6 +13,7 @@ from django.http import HttpResponse
 from django.views.decorators.cache import cache_page
 from django.utils.decorators import method_decorator
 from django.core.cache import cache
+from django.core.exceptions import ValidationError
 
 class UserDetailView(View):
     def get(self, request, pk):
@@ -32,10 +33,16 @@ class UserDetailView(View):
 @login_required
 def create_post(request):
     form = CreateNewPostForm()
-    
     if request.method == "POST":
         form = CreateNewPostForm(request.POST)
         images = request.FILES.getlist('image')
+
+        # Validate image files
+        for img in images:
+            content_type = img.content_type.split('/')[0]
+            if content_type != 'image':
+                form.add_error('image', 'Only image files are allowed.')
+                break  # Stop processing further images
 
         if form.is_valid():
             post = form.save(commit=False)
@@ -44,7 +51,7 @@ def create_post(request):
             for i in images:
                 Image.objects.create(housing_post=post, image=i)
             return redirect('post-home')
-    
+
     context = {'form': form}
     return render(request, "post/create.html", context)
 
