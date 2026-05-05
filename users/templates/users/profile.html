@@ -1,0 +1,41 @@
+{% extends 'static_pages/base.html' %}
+{% load crispy_forms_tags %}
+{% block column-size %}col-md-8{% endblock column-size %}
+{% block sidebar %}
+  <div class="col-md-4">
+    <div class="content-section position-fixed">
+      <h3>My Post</h3>
+      <ol>
+        {% for post in posts %}
+        <li><a class="h4" href="{% url 'post-detail' post.id %}">{{ post.title }}</a></li>
+        {% endfor %}
+      </ol>
+   </div>
+</div>
+    </div>
+  </div>
+{% endblock sidebar %}
+{% block content %}
+  <div class="content-section">
+    <div class="media">
+      <img class="rounded-circle account-img" src="{{ user.profile.image.url }}" />
+      <div class="media-body">
+        <h2 class="account-heading">{{ user.username }}</h2>
+        <p class="text-secondary mb-0">{{ user.profile.name }}</p>
+        <p class="text-secondary mb-0">{{ user.profile.phone_number }}</p>
+        <p class="text-secondary mb-0">{{ user.email }}</p>
+      </div>
+    </div>
+    <form method="POST" enctype="multipart/form-data">
+      {% csrf_token %}
+      <fieldset class="form-group mb-0">
+        <legend class="border-bottom mb-4">Profile Info</legend>
+        {{ u_form|crispy }}
+        {{ p_form|crispy }}
+      </fieldset>
+      <div class="form-group">
+        <button class="btn btn-outline-info" type="submit">Update</button>
+      </div>
+    </form>
+  </div>
+{% endblock %}

@@ -1,0 +1,131 @@
+{% extends 'static_pages/base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block column-size %}col-md-8{% endblock column-size %}
+
+{% block sidebar %}
+  <div class="col-md-4">
+    <div class="position-fixed">
+      <div class="card" style="width: 18rem;">
+      <img class="card-img-top" src="{{ object.user.profile.image.url }}" alt="Card image cap">
+      <div class="card-body">
+         <h5 class="card-title">{{object.user.username}}</h5>
+         <p class="card-text mb-0">Name: {{ object.user.profile.name }}</p>
+         <p class="card-text mb-0">Phone Number: {{ object.user.profile.phone_number }}</p>
+         <p class="card-text">Email: {{ object.user.email }}</p>
+         <div class="text-center">
+            <a class="btn btn-success fa fa-whatsapp" aria-label="Chat on WhatsApp" href="https://wa.me/{{ object.user.profile.phone_number }}">
+               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-whatsapp" viewBox="0 0 16 16">
+                  <path d="M13.601 2.326A7.85 7.85 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.9 7.9 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.9 7.9 0 0 0 13.6 2.326zM7.994 14.521a6.6 6.6 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.56 6.56 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592m3.615-4.934c-.197-.099-1.17-.578-1.353-.646-.182-.065-.315-.099-.445.099-.133.197-.513.646-.627.775-.114.133-.232.148-.43.05-.197-.1-.836-.308-1.592-.985-.59-.525-.985-1.175-1.103-1.372-.114-.198-.011-.304.088-.403.087-.088.197-.232.296-.346.1-.114.133-.198.198-.33.065-.134.034-.248-.015-.347-.05-.099-.445-1.076-.612-1.47-.16-.389-.323-.335-.445-.34-.114-.007-.247-.007-.38-.007a.73.73 0 0 0-.529.247c-.182.198-.691.677-.691 1.654s.71 1.916.81 2.049c.098.133 1.394 2.132 3.383 2.992.47.205.84.326 1.129.418.475.152.904.129 1.246.08.38-.058 1.171-.48 1.338-.943.164-.464.164-.86.114-.943-.049-.084-.182-.133-.38-.232"/>
+               </svg>
+               Chat on WhatsApp
+            </a>
+
+            
+         </div>
+   </div>
+</div>
+    </div>
+  </div>
+{% endblock sidebar %}
+{% block content %}
+<article class="media content-section">
+   <img class="rounded-circle article-img"
+      src="{{ object.user.profile.image.url }}" />
+   <div class="media-body">
+      <div class="article-metadata">
+         <a class="mr-2" href="#">{{ object.user }}</a>
+         <small class="text-muted">{{ object.date_posted }}</small>
+      </div>
+      <h2 class="article-title">{{ object.title }}</h2>
+      <h3>RM {{ object.monthly_payment }}/Month {% if object.utilities_included %} (Include Utilities) {% else %} (Exclude Utilities) {% endif %}</h3>
+      <hr />
+      <p class="article-content">{{ object.description }}</p>
+      <h4>Deposit</h4>
+      <p>RM{{ object.deposit}}</p>
+      {% if object.furnished %}
+      <h4>Furnished Items ({{ object.furnished_type }}):</h4>
+      <ul>
+         {% for item in object.furnished %}
+         <li>{{ item }}</li>
+         {% endfor %}
+      </ul>
+      <br>
+      {% endif %}
+      {% if object.facilities %}
+      <h4>Facilities:</h4>
+      <ul>
+         {% for facility in object.facilities %}
+         <li>{{ facility }}</li>
+         {% endfor %}
+      </ul>
+      <br>
+      {% endif %}
+      {% if object.accessibilities%}
+      <h4>Accessibility:</h4>
+      <ul>
+         {% for accessibility in object.accessibilities%}
+         <li>{{ accessibility }}</li>
+         {% endfor %}
+      </ul>
+      <br>
+      {% endif %}
+   </div>
+   <div>
+      {% if object.gender == 'male' %}
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="blue" class="bi bi-gender-male" viewBox="0 0 16 16">
+         <path fill-rule="evenodd" d="M9.5 2a.5.5 0 0 1 0-1h5a.5.5 0 0 1 .5.5v5a.5.5 0 0 1-1 0V2.707L9.871 6.836a5 5 0 1 1-.707-.707L13.293 2zM6 6a4 4 0 1 0 0 8 4 4 0 0 0 0-8" />
+      </svg>
+      {% else %}
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="red" class="bi bi-gender-female" viewBox="0 0 16 16">
+         <path fill-rule="evenodd" d="M8 1a4 4 0 1 0 0 8 4 4 0 0 0 0-8M3 5a5 5 0 1 1 5.5 4.975V12h2a.5.5 0 0 1 0 1h-2v2.5a.5.5 0 0 1-1 0V13h-2a.5.5 0 0 1 0-1h2V9.975A5 5 0 0 1 3 5" />
+      </svg>
+      {% endif %}
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="15"
+         fill="currentColor" class="bi bi-people-fill" viewBox="0 0 16 16">
+         <path
+            d="M7 14s-1 0-1-1 1-4 5-4 5 3 5 4-1 1-1 1zm4-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6m-5.784 6A2.24 2.24 0 0 1 5 13c0-1.355.68-2.75 1.936-3.72A6.3 6.3 0 0 0 5 9c-4 0-5 3-5 4s1 1 1 1zM4.5 8a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5" />
+      </svg>
+      <small>{{ object.number_of_people }}</small>
+   </div>
+</article>
+{% if object.images.all %}
+<div id="carousel-{{ object.id }}" class="carousel mb-4" data-interval="false" style="background-color: #1e1e2e;">
+   <!-- Indicators -->
+   <ul class="carousel-indicators">
+      {% for image in object.images.all %}
+      <li data-target="#carousel-{{ object.id }}"
+      data-slide-to="{{ forloop.counter0 }}" {% if forloop.first %}class="active" {% endif %}></li>
+      {% endfor %}
+   </ul>
+   <!-- The slideshow -->
+   <div class="carousel-inner">
+      {% for image in object.images.all %}
+      <div class="carousel-item {% if forloop.first %}active{% endif %}">
+         <div class="d-block w-100 aspect-ratio-container">
+            <a href="{{ image.image.url }}" target="_blank">
+            <img src="{{ image.image.url }}" alt="Slide {{ forloop.counter }}"
+               class="img-fluid aspect-ratio-item" style="object-fit: contain;"/>
+            </a>
+         </div>
+      </div>
+      {% endfor %}
+   </div>
+   <!-- Left and right controls -->
+   <a class="carousel-control-prev" href="#carousel-{{ object.id }}"
+      data-slide="prev"><span class="carousel-control-prev-icon"></span></a>
+   <a class="carousel-control-next" href="#carousel-{{ object.id }}"
+      data-slide="next"><span class="carousel-control-next-icon"></span></a>
+</div>
+{% endif %}
+{% if m %}
+<div class="container mb-4">{{ m|safe }}</div>
+{% endif %}
+{% if object.user == user %}
+<div class="mb-4">
+   <a class="btn btn-info" href="{% url 'post-update' object.id %}">Update</a>
+   <a class="btn btn-danger" href="{% url 'post-delete' object.id %}">delete</a>
+</div>
+{% endif %}
+{% endblock %}
