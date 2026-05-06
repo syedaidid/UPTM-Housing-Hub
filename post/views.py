@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.db import connection
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import HousingPost, Image
 from django.contrib.auth.models import User
@@ -14,6 +15,7 @@ from django.views.decorators.cache import cache_page
 from django.utils.decorators import method_decorator
 from django.core.cache import cache
 from django.core.exceptions import ValidationError
+from django.db import connection
 
 class UserDetailView(View):
     def get(self, request, pk):
@@ -218,6 +220,72 @@ class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
             return True
         return False
 
+def search_posts(request):
+    query = request.GET.get('q', '')
+    min_price = request.GET.get('min_price', '')
+    max_price = request.GET.get('max_price', '')
+    posts = []
+
+    if query:
+        with connection.cursor() as cursor:
+            cursor.execute("""
+                SELECT id FROM post_housingpost
+                WHERE MATCH(title, description, address, facilities, accessibilities, furnished, furnished_type, gender)
+                AGAINST (%s IN BOOLEAN MODE)
+                ORDER BY MATCH(title, description, address, facilities, accessibilities, furnished, furnished_type, gender)
+                AGAINST (%s IN BOOLEAN MODE) DESC
+            """, [query, query])
+            rows = cursor.fetchall()
+            ids = [row[0] for row in rows]
+            posts = HousingPost.objects.filter(id__in=ids)
+
+    elif min_price or max_price:
+        posts = HousingPost.objects.all()
+
+    # Apply price filter on top of results
+    if min_price:
+        posts = posts.filter(monthly_payment__gte=min_price)
+    if max_price:
+        posts = posts.filter(monthly_payment__lte=max_price)
+
+    return render(request, 'post/search.html', {
+        'posts': posts,
+        'query': query,
+        'min_price': min_price,
+        'max_price': max_price,
+    })
+
+def post_history(request, pk):
+    post = get_object_or_404(HousingPost, pk=pk)
+    
+    with connection.cursor() as cursor:
+        cursor.execute("""
+            SELECT title, monthly_payment, deposit, address, 
+                   verified, ROW_START, ROW_END
+            FROM post_housingpost
+            FOR SYSTEM_TIME ALL
+            WHERE id = %s
+            ORDER BY ROW_START DESC
+        """, [pk])
+        rows = cursor.fetchall()
+
+    history = []
+    for i, row in enumerate(rows):
+        history.append({
+            'title': row[0],
+            'monthly_payment': row[1],
+            'deposit': row[2],
+            'address': row[3],
+            'verified': row[4],
+            'changed_at': row[5],
+            'is_current': i == 0,
+        })
+
+    return render(request, 'post/history.html', {
+        'post': post,
+        'history': history
+    })
+
 @cache_page(60*15)
 def cached(request):
     user_model = get_user_model()
@@ -230,3 +298,4 @@ def cacheless(request):
     all_users = user_model.objects.all()
     return HttpResponse('<html><body><h1>{0} users... cacheless</h1></body></html>'.
                         format(len(all_users)))
+

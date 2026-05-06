@@ -1,0 +1,6 @@
+.env
+*.pyc
+__pycache__
+myenv/
+media/
+!media/default.jpg

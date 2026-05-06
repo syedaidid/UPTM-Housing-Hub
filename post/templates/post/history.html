@@ -1,0 +1,33 @@
+{% extends "static_pages/base.html" %}
+{% block content %}
+<div class="container">
+    <h2>Listing History: {{ post.title }}</h2>
+    <a href="{% url 'post-detail' post.pk %}" class="btn btn-secondary mb-3">
+        Back to Listing
+    </a>
+
+    <div class="timeline">
+        {% for entry in history %}
+        <div class="card mb-3 {% if entry.is_current %}border-success{% endif %}">
+            <div class="card-header">
+                {% if entry.is_current %}
+                    <span class="badge bg-success">Current Version</span>
+                {% else %}
+                    <span class="badge bg-secondary">Previous Version</span>
+                {% endif %}
+                <small class="text-muted ms-2">{{ entry.changed_at }}</small>
+            </div>
+            <div class="card-body">
+                <p><strong>Title:</strong> {{ entry.title }}</p>
+                <p><strong>Monthly Payment:</strong> RM {{ entry.monthly_payment }}</p>
+                <p><strong>Deposit:</strong> RM {{ entry.deposit }}</p>
+                <p><strong>Address:</strong> {{ entry.address }}</p>
+                <p><strong>Verified:</strong> 
+                    {% if entry.verified %}✅ Yes{% else %}❌ No{% endif %}
+                </p>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

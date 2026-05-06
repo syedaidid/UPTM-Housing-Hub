@@ -1,0 +1,41 @@
+{% extends "static_pages/base.html" %}
+{% block content %}
+<div class="container">
+    <h2>Search Listings</h2>
+    <form method="GET" action="{% url 'post-search' %}">
+    <div class="input-group mb-2">
+        <input type="text" name="q" class="form-control"
+               placeholder="Search by title, description, address, facilities..."
+               value="{{ query }}">
+        <button class="btn btn-primary" type="submit">Search</button>
+    </div>
+    <div class="row mb-3">
+        <div class="col">
+            <input type="number" name="min_price" class="form-control"
+                   placeholder="Min price (RM)" value="{{ min_price }}">
+        </div>
+        <div class="col">
+            <input type="number" name="max_price" class="form-control"
+                   placeholder="Max price (RM)" value="{{ max_price }}">
+        </div>
+    </div>
+</form>
+
+    {% if query or min_price or max_price %}
+        <p>Results for: <strong>{{ query }}</strong></p>
+        {% if posts %}
+            {% for post in posts %}
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h5><a href="{% url 'post-detail' post.pk %}">{{ post.title }}</a></h5>
+                    <p>{{ post.address }}</p>
+                    <p>RM {{ post.monthly_payment }}/month</p>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <p>No listings found for "{{ query }}"</p>
+        {% endif %}
+    {% endif %}
+</div>
+{% endblock %}
