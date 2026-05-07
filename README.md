@@ -1,4 +1,6 @@
-```markdown
+
+---
+
 # UPTM Housing Hub
 
 A centralized web platform for UPTM (Universiti Poly-Tech Malaysia) students to find and post housing listings near campus. Built as a Final Year Project and extended with advanced MariaDB features for a hackathon.
@@ -157,4 +159,3 @@ UPTM-Housing-Hub/
 Syed Amer Aidid bin Syed Mohd Bakri  
 Universiti Poly-Tech Malaysia (UPTM)  
 Diploma in Computer Science
-```
