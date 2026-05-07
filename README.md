@@ -1,3 +1,4 @@
+```markdown
 # UPTM Housing Hub
 
 A centralized web platform for UPTM (Universiti Poly-Tech Malaysia) students to find and post housing listings near campus. Built as a Final Year Project and extended with advanced MariaDB features for a hackathon.
@@ -37,30 +38,50 @@ A centralized web platform for UPTM (Universiti Poly-Tech Malaysia) students to 
 ## Quick Start
 
 ### 1. Clone the repository
+
+```bash
 git clone -b hackathon https://github.com/syedaidid/UPTM-Housing-Hub.git
 cd UPTM-Housing-Hub
+```
 
 ### 2. Setup environment variables
+
+```bash
 cp .env.example .env
+```
 
 Open `.env` and fill in your values if needed. Default values work out of the box for local development.
 
 ### 3. Start the application
+
+```bash
 sudo docker-compose up --build
+```
 
 Wait for both containers to be healthy. You should see:
+
+```
 web-1  | Watching for file changes with StatReloader
+```
 
 ### 4. Create admin user (first time only)
+
 Open a new terminal:
+
+```bash
 sudo docker-compose exec web python manage.py createsuperuser
+```
 
 ### 5. Visit the app
+
+```
 http://localhost:8000
+```
 
 ## Usage
 
 ### Running the app
+
 ```bash
 # Start
 sudo docker-compose up
@@ -76,6 +97,7 @@ sudo docker-compose logs -f
 ```
 
 ### Reset everything (wipe database)
+
 ```bash
 sudo docker-compose down -v
 sudo docker-compose up --build
@@ -100,6 +122,8 @@ sudo docker-compose up --build
 4. This is powered entirely by MariaDB System Versioning — zero extra application code needed
 
 ## Project Structure
+
+```
 UPTM-Housing-Hub/
 ├── UPTMHousingHub/        # Django project settings and URLs
 ├── post/                  # Housing listings app
@@ -113,6 +137,7 @@ UPTM-Housing-Hub/
 ├── docker-compose.yml     # Multi-container setup (Django + MariaDB)
 ├── requirements.txt       # Python dependencies
 └── .env.example           # Environment variables template
+```
 
 ## Environment Variables
 
@@ -129,6 +154,7 @@ UPTM-Housing-Hub/
 
 ## Author
 
-Syed Amer Aidid bin Syed Mohd Bakri
-Universiti Poly-Tech Malaysia (UPTM)
+Syed Amer Aidid bin Syed Mohd Bakri  
+Universiti Poly-Tech Malaysia (UPTM)  
 Diploma in Computer Science
+```
